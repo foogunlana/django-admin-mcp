@@ -19,6 +19,34 @@ Expose Django admin models to MCP (Model Context Protocol) clients via HTTP. Add
 
 ---
 
+## Fork Notes (Stears)
+
+This fork contains bug fixes not yet merged into the upstream repo ([7tg/django-admin-mcp](https://github.com/7tg/django-admin-mcp)). The Stears `news` repo depends on this fork via:
+
+```toml
+"django-admin-mcp @ git+https://github.com/foogunlana/django-admin-mcp.git@main"
+```
+
+### Fixes in this fork
+
+1. **M2M serialization error** ([#76](https://github.com/7tg/django-admin-mcp/issues/76), [PR #77](https://github.com/7tg/django-admin-mcp/pull/77))
+   - `model_to_dict()` returns M2M fields as lists of Django model instances, which Pydantic cannot serialize
+   - Fix: convert M2M values to lists of PKs and FK values to PKs in `serialize_instance()`
+
+2. **Describe handler crash on None on_delete** ([#78](https://github.com/7tg/django-admin-mcp/issues/78), [PR #79](https://github.com/7tg/django-admin-mcp/pull/79))
+   - Some fields (e.g. M2M through relations) have `remote_field` but `on_delete` is `None`, causing `AttributeError`
+   - Fix: use `getattr` with a `None` check before accessing `.__name__`
+
+### Reverting to upstream
+
+Once these PRs are merged and a new version is released on PyPI, update `pyproject.toml` back to:
+
+```toml
+"django-admin-mcp>=<new_version>"
+```
+
+---
+
 ## ✨ Features
 
 - 📦 **Zero dependencies** — only Django and Pydantic required
